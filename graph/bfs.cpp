@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <queue>
 using namespace std;
 
 struct Element
@@ -23,18 +24,21 @@ struct Graph
 	Graph(int numVertices)
 	{
 		this->numVertices = numVertices;
-		arrayPtr = new ElementPtr[numVertices];
+		adjList = new ElementPtr[numVertices];
 		for(int i=0;i<numVertices;i++)
 		{
-			arrayPtr[i] = nullptr;
+			adjList[i] = nullptr;
 		}
+		state = new int[numVertices];
+		d = new int[numVertices];
+		parent = new int[numVertices];
 	};
 	~Graph(){};
 	void insertInLinkedlist(int arrayIndex, int key)
 	{
 		ElementPtr element = new Element(key);
-		element->next = arrayPtr[arrayIndex];
-		arrayPtr[arrayIndex] = element;
+		element->next = adjList[arrayIndex];
+		adjList[arrayIndex] = element;
 	}
 	void addEdge(int a,int b)
 	{
@@ -47,7 +51,7 @@ struct Graph
 		for(int i=0;i<numVertices;i++)
 		{
 			cout << "Vertex " << i+1 << " : " ;
-			ElementPtr next = arrayPtr[i];
+			ElementPtr next = adjList[i];
 			while(next != nullptr)
 			{
 				cout << next->key+1 << " ";
@@ -56,14 +60,52 @@ struct Graph
 			cout << endl;
 		}
 	}
-	ElementPtr* arrayPtr;
+	ElementPtr* adjList;
+	int* state;
+	int* d;
+	int* parent;
 	int numVertices;
 };
 
+void BFS(Graph& g, int start)
+{
+	for(int i=0;i<g.numVertices;i++)
+	{
+		g.state[i] = 0;
+		g.d[i] = 0;
+		g.parent[i] = -1;
+	}
+	g.state[start] = 1;
+	g.d[start] = 0;
+	g.parent[start] = -1;
+	queue<int> Q;
+	cout << start << " ";
+	Q.push(start);
+	while(!Q.empty())
+	{
+		int u = Q.front();
+		Q.pop();
+		ElementPtr next = g.adjList[u];
+		while(next != nullptr)
+		{
+			int v = next->key;
+			if(g.state[v]==0)
+			{
+				g.state[v] = 1;
+				g.d[v] = g.d[v] +1;
+				g.parent[v] = u;
+				cout << v << " ";
+				Q.push(v);
+			}
+			next = next->next;
+		}
+		g.state[u] = 2;
+	}
+	cout << endl;
+}
 
 int main()
 {
-	cout<< "Test" << endl;
 	Graph graph(5);
 	graph.addEdge(1,2);
 	graph.addEdge(2,4);
@@ -73,4 +115,5 @@ int main()
 	graph.addEdge(2,3);
 	graph.addEdge(3,4);
 	graph.dump();
+	BFS(graph,0);
 }
