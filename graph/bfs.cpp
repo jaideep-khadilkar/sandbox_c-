@@ -42,7 +42,7 @@ struct Graph
 	}
 	void addEdge(int a,int b)
 	{
-		a--;b--;
+//		a--;b--;
 		insertInLinkedlist(a,b);
 		insertInLinkedlist(b,a);
 	}
@@ -50,11 +50,11 @@ struct Graph
 	{
 		for(int i=0;i<numVertices;i++)
 		{
-			cout << "Vertex " << i+1 << " : " ;
+			cout << "Vertex " << i << " : " ;
 			ElementPtr next = adjList[i];
 			while(next != nullptr)
 			{
-				cout << next->key+1 << " ";
+				cout << next->key << " ";
 				next = next->next;
 			}
 			cout << endl;
@@ -106,14 +106,17 @@ void BFS(Graph& g, int start)
 
 int main()
 {
-	Graph graph(5);
-	graph.addEdge(1,2);
-	graph.addEdge(2,4);
-	graph.addEdge(4,5);
-	graph.addEdge(5,1);
-	graph.addEdge(5,2);
+	Graph graph(8);
+	graph.addEdge(0,1);
 	graph.addEdge(2,3);
-	graph.addEdge(3,4);
+	graph.addEdge(0,4);
+	graph.addEdge(1,5);
+	graph.addEdge(2,6);
+	graph.addEdge(3,7);
+	graph.addEdge(5,2);
+	graph.addEdge(6,3);
+	graph.addEdge(5,6);
+	graph.addEdge(6,7);
 	graph.dump();
 	BFS(graph,0);
 }
