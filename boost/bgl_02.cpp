@@ -6,17 +6,16 @@
 #include <boost/property_map/property_map.hpp>
 #include <boost/graph/named_function_params.hpp>
 
-struct EdgeData
+struct VertexData
 {
-  std::string edge_name;
-  double dist;
+	int value;
 };
 
 void example0a()
 {
   typedef boost::adjacency_list<boost::vecS, boost::vecS,
                                 boost::undirectedS,
-                                boost::no_property,
+								VertexData,
                                 boost::property<boost::edge_weight_t, double>
                                 > MyGraphType;
   MyGraphType G(11);
