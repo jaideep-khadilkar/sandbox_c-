@@ -127,17 +127,3 @@ void ppm::write(const std::string &fname) {
     }
     inp.close();
 }
-
-int main()
-{
-	cout << "Test" << endl;
-	ppm	image("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
-	for(int i=0;i<image.size;i++)
-	{
-		cout << int(image.r[i]) << " ";
-		image.r[i] = char(255 - int(image.r[i]));
-		image.g[i] = char(255 - int(image.g[i]));
-		image.b[i] = char(255 - int(image.b[i]));
-	}
-	image.write("/home/user/git/sandbox_cpp/boost/apples02.ppm");
-}
