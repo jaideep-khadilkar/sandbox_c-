@@ -19,21 +19,9 @@ void example0a()
 	const int width = 64;
 	const int height = 64;
 	const int size = width * height;
+	const int numLevels = 256;
 
 	ppm	image("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
-	int imageData[size];
-	for(int i=0;i<image.size;i++)
-	{
-		imageData[i] = int(image.r[i]);
-	}
-
-	float tLinkFG[size];
-	float tLinkBG[size];
-	for(int i=0;i<size;i++)
-	{
-		tLinkFG[i] = 1 - float(abs(imageData[i]-255))/float(255);
-		tLinkBG[i] = 1 - float(abs(imageData[i]-0))/float(255);
-	}
 
   typedef boost::adjacency_list<boost::vecS, boost::vecS,
                                 boost::undirectedS,
@@ -44,15 +32,44 @@ void example0a()
   boost::property_map<MyGraphType, boost::edge_weight_t>::type weightmap =
     get(boost::edge_weight, G);
 
+  int pdfFG[numLevels];
+  int pdfBG[numLevels];
+  int sampleCountFG = 0;
+  int sampleCountBG = 0;
   for(int i=0;i<size;i++)
   {
+	  if(int(image.r[i]))
+	  {
+		  sampleCountFG++;
+		  pdfFG[int(image.g[i])] = pdfFG[int(image.g[i])] + 1;
+	  }
+	  if(int(image.b[i]))
+	  {
+		  sampleCountBG++;
+		  pdfBG[int(image.g[i])] = pdfBG[int(image.g[i])] + 1;
+	  }
+  }
+
+  for(int i=0;i<numLevels;i++)
+  {
+	  if(sampleCountFG!=0)
+	  {
+		  pdfFG[i] = pdfFG[i]/sampleCountFG;
+	  }
+	  if(sampleCountBG!=0)
+	  {
+		  pdfBG[i] = pdfBG[i]/sampleCountBG;
+	  }
+  }
+
+  for(int i=0;i<size;i++)
+  {
+	  int data = int(image.g[i]);
 	  auto e1 = add_edge(size,i,G).first;
-	  weightmap[e1] = tLinkFG[i];
-//	  std::cout << "FG : " << weightmap[e1] << std::endl;
+	  weightmap[e1] = 1 - float(abs(data-255))/float(255);
 
 	  auto e2 = add_edge(size+1,i,G).first;
-	  weightmap[e2] = tLinkBG[i];
-//	  std::cout << "BG : " << weightmap[e2] << std::endl;
+	  weightmap[e2] = 1 - float(abs(data-0))/float(255);
 
   }
 
