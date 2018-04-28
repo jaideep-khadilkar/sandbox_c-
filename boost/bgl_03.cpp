@@ -13,6 +13,7 @@
 using namespace std;
 
 static const float sigma = 1.0;
+static const float lambda = 1.0;
 
 struct VertexData
 {
@@ -26,12 +27,13 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS,
                               > MyGraphType;
 
 typedef boost::property_map<MyGraphType, boost::edge_weight_t>::type WeightMapType;
-void addNeighbor(int i1, int i2,MyGraphType& G,WeightMapType& weightmap,ppm&	image)
+float addNeighbor(int i1, int i2,MyGraphType& G,WeightMapType& weightmap,ppm&	image)
 {
 	  float sq = - pow(float(image.g[i1])-float(image.g[i2]),2)/float(2*pow(sigma,2));
 	  float B = exp(sq);
 	  auto e1 = add_edge(i1,i2,G).first;
 	  weightmap[e1] = B;
+	  return B;
 }
 
 void example0a()
@@ -58,19 +60,22 @@ void example0a()
   /*
    * Set Neighboring Weights
    */
-
+  float K =0;
   for(int i=0;i<size;i++)
   {
+	  float k = 0;
 	  if((i/width)==((i+1)/width))
 	  {
-		  addNeighbor(i,i+1,G,weightmap,image);
+		  k += addNeighbor(i,i+1,G,weightmap,image);
 	  }
 	  if((i+width)<size)
 	  {
-		  addNeighbor(i,i+width,G,weightmap,image);
+		  k += addNeighbor(i,i+width,G,weightmap,image);
 	  }
+	  if(k>K)
+		  K=k;
   }
-
+//  cout << "K : " << K << endl;
 
   /*
    * Build Histogram & Probability Distribution Function
@@ -119,10 +124,36 @@ void example0a()
 	  int data = int(image.g[i]);
 
 	  auto e1 = add_edge(size,i,G).first;
-	  weightmap[e1] = float(pdfFG[data])/float(sampleCountFG);
+	  float weightFG = 0;
+	  if(int(image.r[i]))
+	  {
+		  weightFG = 5;
+	  }
+	  else
+	  {
+		  weightFG = float(pdfFG[data])/float(sampleCountFG);
+	  }
+	  if(int(image.b[i]))
+	  {
+		  weightFG = 0;
+	  }
+	  weightmap[e1] = weightFG;
 
 	  auto e2 = add_edge(size+1,i,G).first;
-	  weightmap[e2] = float(pdfBG[data])/float(sampleCountBG);
+	  float weightBG = 0;
+	  if(int(image.b[i]))
+	  {
+		  weightBG = 5;
+	  }
+	  else
+	  {
+		  weightBG = float(pdfBG[data])/float(sampleCountBG);
+	  }
+	  if(int(image.r[i]))
+	  {
+		  weightBG = 0;
+	  }
+	  weightmap[e2] = weightBG;
   }
 
   /*
