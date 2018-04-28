@@ -176,9 +176,9 @@ void example0a()
    */
   int currentVtxIndex = 0;
   for(auto iter=vpair.first; iter!=vpair.second; iter++) {
-    image.r[currentVtxIndex] = get(parity,*iter) * 255;
-    image.g[currentVtxIndex] = get(parity,*iter) * 255;
-    image.b[currentVtxIndex] = get(parity,*iter) * 255;
+    image.r[currentVtxIndex] = image.g[currentVtxIndex] + get(parity,*iter) * 100;
+//    image.g[currentVtxIndex] = get(parity,*iter) * 255;
+    image.b[currentVtxIndex] = image.g[currentVtxIndex] + (1-get(parity,*iter)) * 100;
     currentVtxIndex++;
   }
   image.write("/home/user/git/sandbox_cpp/boost/apples_64_seg.ppm");
