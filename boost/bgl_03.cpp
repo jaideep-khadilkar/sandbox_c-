@@ -11,6 +11,9 @@
 #include <boost/timer.hpp>
 
 using namespace std;
+
+static const float sigma = 1.0;
+
 struct VertexData
 {
 	int value;
@@ -25,7 +28,7 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS,
 typedef boost::property_map<MyGraphType, boost::edge_weight_t>::type WeightMapType;
 void addNeighbor(int i1, int i2,MyGraphType& G,WeightMapType& weightmap,ppm&	image)
 {
-	  float sq = -0.5 * pow(float(image.g[i1])-float(image.g[i2]),2);
+	  float sq = - pow(float(image.g[i1])-float(image.g[i2]),2)/float(2*pow(sigma,2));
 	  float B = exp(sq);
 	  auto e1 = add_edge(i1,i2,G).first;
 	  weightmap[e1] = B;
@@ -61,12 +64,10 @@ void example0a()
 	  if((i/width)==((i+1)/width))
 	  {
 		  addNeighbor(i,i+1,G,weightmap,image);
-//		  float sq = -1/2 * (image.g[i]-image.g[i+1])^2;
-//		  float expVal = exp(sq);
-//		  float B = expVal;
-//
-//		  auto e1 = add_edge(i,i+1,G).first;
-//		  weightmap[e1] = B;
+	  }
+	  if((i+width)<size)
+	  {
+		  addNeighbor(i,i+width,G,weightmap,image);
 	  }
   }
 
@@ -93,22 +94,22 @@ void example0a()
 	  }
   }
 
-  cout << "sampleCountFG : " << sampleCountFG << endl;
-  cout << "sampleCountBG : " << sampleCountBG << endl;
+//  cout << "sampleCountFG : " << sampleCountFG << endl;
+//  cout << "sampleCountBG : " << sampleCountBG << endl;
 
-  cout << "FG Histogram " << endl;
-  for(int i=0;i<numLevels;i++)
-  {
-	  if(pdfFG[i]!=0)
-	  cout << i << " : " << pdfFG[i] << endl;
-
-  }
-  cout << "BG Histogram " << endl;
-  for(int i=0;i<numLevels;i++)
-  {
-	  if(pdfBG[i]!=0)
-	  cout << i << " : " << pdfBG[i] << endl;
-  }
+//  cout << "FG Histogram " << endl;
+//  for(int i=0;i<numLevels;i++)
+//  {
+//	  if(pdfFG[i]!=0)
+//	  cout << i << " : " << pdfFG[i] << endl;
+//
+//  }
+//  cout << "BG Histogram " << endl;
+//  for(int i=0;i<numLevels;i++)
+//  {
+//	  if(pdfBG[i]!=0)
+//	  cout << i << " : " << pdfBG[i] << endl;
+//  }
 
   /*
    * Set Regional Weights
