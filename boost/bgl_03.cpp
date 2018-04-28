@@ -13,7 +13,7 @@
 using namespace std;
 
 static const float sigma = 1.0;
-static const float lambda = 1.0;
+static const float lambda = 0.1;
 
 struct VertexData
 {
@@ -131,7 +131,11 @@ void example0a()
 	  }
 	  else
 	  {
-		  weightFG = float(pdfFG[data])/float(sampleCountFG);
+		  if(pdfBG[data]!=0)
+		  {
+			  weightFG = -lambda * log(float(pdfBG[data])/float(sampleCountBG));
+			  cout << " weightFG : " << weightFG << endl;
+		  }
 	  }
 	  if(int(image.b[i]))
 	  {
@@ -147,7 +151,11 @@ void example0a()
 	  }
 	  else
 	  {
-		  weightBG = float(pdfBG[data])/float(sampleCountBG);
+		  if(pdfFG[data]!=0)
+		  {
+			  weightBG = -lambda * log(float(pdfFG[data])/float(sampleCountFG));
+			  cout << " weightBG : " << weightBG << endl;
+		  }
 	  }
 	  if(int(image.r[i]))
 	  {
