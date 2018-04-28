@@ -16,6 +16,21 @@ struct VertexData
 	int value;
 };
 
+typedef boost::adjacency_list<boost::vecS, boost::vecS,
+                              boost::undirectedS,
+								VertexData,
+                              boost::property<boost::edge_weight_t, double>
+                              > MyGraphType;
+
+typedef boost::property_map<MyGraphType, boost::edge_weight_t>::type WeightMapType;
+void addNeighbor(int i1, int i2,MyGraphType& G,WeightMapType& weightmap,ppm&	image)
+{
+	  float sq = -0.5 * pow(float(image.g[i1])-float(image.g[i2]),2);
+	  float B = exp(sq);
+	  auto e1 = add_edge(i1,i2,G).first;
+	  weightmap[e1] = B;
+}
+
 void example0a()
 {
 
@@ -32,11 +47,7 @@ void example0a()
 	/*
 	 * Create Graph
 	 */
-  typedef boost::adjacency_list<boost::vecS, boost::vecS,
-                                boost::undirectedS,
-								VertexData,
-                                boost::property<boost::edge_weight_t, double>
-                                > MyGraphType;
+
   MyGraphType G(size+2);
   boost::property_map<MyGraphType, boost::edge_weight_t>::type weightmap =
     get(boost::edge_weight, G);
@@ -45,10 +56,19 @@ void example0a()
    * Set Neighboring Weights
    */
 
-
-
-
-
+  for(int i=0;i<size;i++)
+  {
+	  if((i/width)==((i+1)/width))
+	  {
+		  addNeighbor(i,i+1,G,weightmap,image);
+//		  float sq = -1/2 * (image.g[i]-image.g[i+1])^2;
+//		  float expVal = exp(sq);
+//		  float B = expVal;
+//
+//		  auto e1 = add_edge(i,i+1,G).first;
+//		  weightmap[e1] = B;
+	  }
+  }
 
 
   /*
@@ -98,14 +118,10 @@ void example0a()
 	  int data = int(image.g[i]);
 
 	  auto e1 = add_edge(size,i,G).first;
-//	  weightmap[e1] = 1 - float(abs(data-255))/float(255);
 	  weightmap[e1] = float(pdfFG[data])/float(sampleCountFG);
-//	  cout << "FG : " << weightmap[e1] << endl;
 
 	  auto e2 = add_edge(size+1,i,G).first;
-//	  weightmap[e2] = 1 - float(abs(data-0))/float(255);
 	  weightmap[e2] = float(pdfBG[data])/float(sampleCountBG);
-//	  cout << "BG : " << weightmap[e2] << endl;
   }
 
   /*
