@@ -60,20 +60,26 @@ void example0a()
   /*
    * Set Neighboring Weights
    */
-  float K =0;
   for(int i=0;i<size;i++)
   {
-	  float k = 0;
 	  if((i/width)==((i+1)/width))
 	  {
-		  k += addNeighbor(i,i+1,G,weightmap,image);
+		  addNeighbor(i,i+1,G,weightmap,image);
 	  }
 	  if((i+width)<size)
 	  {
-		  k += addNeighbor(i,i+width,G,weightmap,image);
+		  addNeighbor(i,i+width,G,weightmap,image);
 	  }
-	  if(k>K)
-		  K=k;
+	  int col = i%width;
+	  int row = i/width;
+	  if(col < (width-1) && row<(height-1))
+	  {
+		  addNeighbor(i,i+width+1,G,weightmap,image);
+	  }
+	  if(col>0 && row<(height-1))
+	  {
+		  addNeighbor(i,i+width-1,G,weightmap,image);
+	  }
   }
 //  cout << "K : " << K << endl;
 
@@ -127,7 +133,7 @@ void example0a()
 	  float weightFG = 0;
 	  if(int(image.r[i]))
 	  {
-		  weightFG = 5;
+		  weightFG = 9;
 	  }
 	  else
 	  {
@@ -147,7 +153,7 @@ void example0a()
 	  float weightBG = 0;
 	  if(int(image.b[i]))
 	  {
-		  weightBG = 5;
+		  weightBG = 9;
 	  }
 	  else
 	  {
@@ -176,9 +182,14 @@ void example0a()
    */
   int currentVtxIndex = 0;
   for(auto iter=vpair.first; iter!=vpair.second; iter++) {
-    image.r[currentVtxIndex] = image.g[currentVtxIndex] + get(parity,*iter) * 100;
+
+	  cout << currentVtxIndex << " : " << get(parity,*iter) << endl;
+
+//    image.r[currentVtxIndex] = image.g[currentVtxIndex] + get(parity,*iter) * 100;
+    image.r[currentVtxIndex] = get(parity,*iter) * 255;
 //    image.g[currentVtxIndex] = get(parity,*iter) * 255;
-    image.b[currentVtxIndex] = image.g[currentVtxIndex] + (1-get(parity,*iter)) * 100;
+//    image.b[currentVtxIndex] = image.g[currentVtxIndex] + (1-get(parity,*iter)) * 100;
+    image.b[currentVtxIndex] = (1-get(parity,*iter)) * 255;
     currentVtxIndex++;
   }
   image.write("/home/user/git/sandbox_cpp/boost/apples_64_seg.ppm");
