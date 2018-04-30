@@ -13,7 +13,7 @@
 using namespace std;
 
 static const float sigma = 1.0;
-static const float lambda = 0.1;
+static const float lambda = 0.0001;
 
 struct VertexData
 {
@@ -48,6 +48,8 @@ void example0a()
 	const int numLevels = 256;
 
 	ppm	image("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
+	ppm	imageFGBG("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
+	ppm	imageN("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
 
 	/*
 	 * Create Graph
@@ -64,17 +66,20 @@ void example0a()
   {
 	  if((i/width)==((i+1)/width))
 	  {
-		  addNeighbor(i,i+1,G,weightmap,image);
+		  float val = addNeighbor(i,i+1,G,weightmap,image);
+		  imageN.r[i] = val * 255;
 	  }
 	  if((i+width)<size)
 	  {
-		  addNeighbor(i,i+width,G,weightmap,image);
+		  float val = addNeighbor(i,i+width,G,weightmap,image);
+		  imageN.g[i] = val * 255;
 	  }
 	  int col = i%width;
 	  int row = i/width;
 	  if(col < (width-1) && row<(height-1))
 	  {
-		  addNeighbor(i,i+width+1,G,weightmap,image);
+		  float val = addNeighbor(i,i+width+1,G,weightmap,image);
+		  imageN.b[i] = val * 255;
 	  }
 	  if(col>0 && row<(height-1))
 	  {
@@ -105,23 +110,6 @@ void example0a()
 	  }
   }
 
-//  cout << "sampleCountFG : " << sampleCountFG << endl;
-//  cout << "sampleCountBG : " << sampleCountBG << endl;
-
-//  cout << "FG Histogram " << endl;
-//  for(int i=0;i<numLevels;i++)
-//  {
-//	  if(pdfFG[i]!=0)
-//	  cout << i << " : " << pdfFG[i] << endl;
-//
-//  }
-//  cout << "BG Histogram " << endl;
-//  for(int i=0;i<numLevels;i++)
-//  {
-//	  if(pdfBG[i]!=0)
-//	  cout << i << " : " << pdfBG[i] << endl;
-//  }
-
   /*
    * Set Regional Weights
    */
@@ -129,46 +117,55 @@ void example0a()
   {
 	  int data = int(image.g[i]);
 
+	  /*
+	   * FG
+	   */
 	  auto e1 = add_edge(size,i,G).first;
 	  float weightFG = 0;
 	  if(int(image.r[i]))
 	  {
-		  weightFG = 9;
+		  weightFG = 255;
 	  }
 	  else
 	  {
-		  if(pdfBG[data]!=0)
-		  {
-			  weightFG = -lambda * log(float(pdfBG[data])/float(sampleCountBG));
-			  cout << " weightFG : " << weightFG << endl;
-		  }
+		  float val = float(pdfBG[data])/float(sampleCountBG);
+		  if(val<0.00001) val = 0.00001;
+		  weightFG = -lambda * log(val);
+//		  cout << " weightFG : " << weightFG << endl;
 	  }
 	  if(int(image.b[i]))
 	  {
 		  weightFG = 0;
 	  }
 	  weightmap[e1] = weightFG;
+	  imageFGBG.r[i] = weightFG * 100;
 
+	  /*
+	   * BG
+	   */
 	  auto e2 = add_edge(size+1,i,G).first;
 	  float weightBG = 0;
 	  if(int(image.b[i]))
 	  {
-		  weightBG = 9;
+		  weightBG = 255;
 	  }
 	  else
 	  {
-		  if(pdfFG[data]!=0)
-		  {
-			  weightBG = -lambda * log(float(pdfFG[data])/float(sampleCountFG));
-			  cout << " weightBG : " << weightBG << endl;
-		  }
+		  float val = float(pdfFG[data])/float(sampleCountFG);
+		  if(val<0.00001) val = 0.00001;
+		  weightBG = -lambda * log(val);
+//		  cout << " weightBG : " << weightBG << endl;
 	  }
 	  if(int(image.r[i]))
 	  {
 		  weightBG = 0;
 	  }
 	  weightmap[e2] = weightBG;
+	  imageFGBG.b[i] = weightBG * 100;
   }
+
+    imageFGBG.write("/home/user/git/sandbox_cpp/boost/apples_64_fgbg.ppm");
+    imageN.write("/home/user/git/sandbox_cpp/boost/apples_64_n.ppm");
 
   /*
    * MinCut Algorithm
