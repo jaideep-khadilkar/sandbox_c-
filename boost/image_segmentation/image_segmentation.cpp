@@ -38,7 +38,7 @@ float addNeighbor(int i1, int i2,MyGraphType& G,WeightMapType& weightmap,ppm&	im
 	  return B;
 }
 
-void example0a()
+void image_segmentation(string filename)
 {
 
 	/*
@@ -47,10 +47,11 @@ void example0a()
 	const int numLevels = 256;
 	const float minProb = 0.00001;
 
-	ppm	image("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
-	ppm	imageFGBG("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
-	ppm	imageN("/home/user/git/sandbox_cpp/boost/apples_64.ppm");
-	ppm	imageWeights("/home/user/git/sandbox_cpp/boost/apples_manual_weights.ppm");
+	string filename_input = filename+"_input.ppm";
+	ppm	image(filename_input);
+	ppm	imageFGBG(filename_input);
+	ppm	imageN(filename_input);
+//	ppm	imageWeights("apples_manual_weights.ppm");
 
 	const int width = image.width;
 	const int height = image.height;
@@ -148,7 +149,7 @@ void example0a()
 		  float val = float(pdfBG[data])/float(sampleCountBG);
 		  if(val<minProb) val = minProb;
 		  weightFG = -lambda * Rbeta * log(val);
-		  weightFG = imageWeights.r[i];
+//		  weightFG = imageWeights.r[i];
 //		  cout << " weightFG : " << weightFG << endl;
 	  }
 	  if(int(image.b[i]))
@@ -172,7 +173,7 @@ void example0a()
 		  float val = float(pdfFG[data])/float(sampleCountFG);
 		  if(val<minProb) val = minProb;
 		  weightBG = -lambda * Rbeta * log(val);
-		  weightBG = imageWeights.b[i];
+//		  weightBG = imageWeights.b[i];
 //		  cout << " weightBG : " << weightBG << endl;
 	  }
 	  if(int(image.r[i]))
@@ -183,8 +184,8 @@ void example0a()
 	  imageFGBG.b[i] = weightBG;
   }
 
-    imageFGBG.write("/home/user/git/sandbox_cpp/boost/apples_64_fgbg.ppm");
-    imageN.write("/home/user/git/sandbox_cpp/boost/apples_64_n.ppm");
+    imageFGBG.write(filename+"_fgbg.ppm");
+    imageN.write(filename+"_n.ppm");
 
   /*
    * MinCut Algorithm
@@ -201,23 +202,22 @@ void example0a()
 
 	  cout << currentVtxIndex << " : " << get(parity,*iter) << endl;
 
-//    image.r[currentVtxIndex] = image.g[currentVtxIndex] + get(parity,*iter) * 100;
     image.r[currentVtxIndex] = get(parity,*iter) * 255;
-//    image.g[currentVtxIndex] = get(parity,*iter) * 255;
-//    image.b[currentVtxIndex] = image.g[currentVtxIndex] + (1-get(parity,*iter)) * 100;
     image.b[currentVtxIndex] = (1-get(parity,*iter)) * 255;
     currentVtxIndex++;
   }
-  image.write("/home/user/git/sandbox_cpp/boost/apples_64_seg.ppm");
+  image.write(filename+"_output.ppm");
   cout << " mincut : " << mincut << endl;
 
 }
 
 
 int
-main(int, char *[])
+main(int argc, char* argv[])
 {
+  cout << argv[1] << endl;
   boost::timer t; // start timing
-  example0a();
+  string filename(argv[1]);
+  image_segmentation(filename);
   cout << t.elapsed() << endl;
 }
