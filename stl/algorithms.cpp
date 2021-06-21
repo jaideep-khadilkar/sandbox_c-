@@ -11,10 +11,7 @@ public:
 	ClassA(int input):memberA(input){};
 	bool operator==(const ClassA& other)
 	{
-		if(this->memberA == other.memberA)
-			return true;
-		else
-			return false;
+		return this->memberA == other.memberA;
 	}
 	int memberA;
 };
@@ -59,9 +56,9 @@ public:
 
 struct DivisibleBy
 {
-    const int d;
-    DivisibleBy(int n) : d(n) {}
-    bool operator()(int n) const { return n % d == 0; }
+    const int d_;
+    DivisibleBy(int d) : d_(d) {}
+    bool operator()(int n) const { return n % d_ == 0; }
 };
 
 int main() {
@@ -171,7 +168,7 @@ int main() {
     reverse(vecC.begin(),vecC.end());
 
     cout << "reverse : vecC after : ";
-	for_each(vecC.begin(),vecC.end(),Print());
+	for_each(vecC.begin(), vecC.end(), [](int n) {cout << n << " "; });
 	cout << endl;
 
 	cout << "====================" << endl;
@@ -190,8 +187,8 @@ int main() {
 
 	partition(vecC.begin(), vecC.end(), [](int i){return i % 2 == 0;});
     cout << "partition : vecC after : ";
-	for_each(vecC.begin(),vecC.end(),Print());
-//	copy(begin(vecC), end(vecC), ostream_iterator<int>(std::cout, " "));
+	//for_each(vecC.begin(),vecC.end(),Print());
+	copy(vecC.begin(), vecC.end(), ostream_iterator<int>(std::cout, " "));
 	cout << endl;
 
 	cout << "====================" << endl;
