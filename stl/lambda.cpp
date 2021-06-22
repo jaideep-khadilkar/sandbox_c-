@@ -18,9 +18,9 @@ int main()
 
 	cout << "====================" << endl;
 
-	for_each(vecA.begin(),vecA.end(),[mult](int val) -> int
-	{
-		cout << val * mult << endl;
-	});
+	//for_each(vecA.begin(),vecA.end(),[mult](int val) -> int
+	//{
+	//	cout << val * mult << endl;
+	//});
 
 }
