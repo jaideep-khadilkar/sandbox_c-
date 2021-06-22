@@ -12,6 +12,20 @@ public :
 	Job(string input_name,int input_submit_time,float input_priority=0)
 	:name(input_name),submit_time(input_submit_time),priority(input_priority)
 	{}
+
+	friend bool operator< (const Job& lhs, const Job& rhs)
+	{
+		if (lhs.priority < rhs.priority)
+			return true;
+
+		if (lhs.priority == rhs.priority)
+		{
+			return lhs.submit_time >= rhs.submit_time;
+		}
+
+		//lhs.priority > rhs.priority
+		return false;
+	}
 	string name;
 	int submit_time;
 	float priority;
@@ -28,10 +42,7 @@ public:
 
 		if(jobA.priority == jobB.priority)
 		{
-			if(jobA.submit_time >= jobB.submit_time)
-				return true;
-			else
-				return false;
+			return jobA.submit_time >= jobB.submit_time;
 		}
 
 		//jobA.priority > jobB.priority
@@ -84,7 +95,8 @@ int main()
 
 	cout << "====================" << endl;
 
-	priority_queue<Job,vector<Job>,JobCompare> pqB;
+	//priority_queue<Job,vector<Job>,JobCompare> pqB;
+	priority_queue<Job> pqB;
 	pqB.push(Job("render_A",1));
 	pqB.push(Job("render_B",2,10));
 	pqB.push(Job("render_C",3,-1));
@@ -93,7 +105,8 @@ int main()
 	pqB.push(Job("render_F",6));
 	while(!pqB.empty())
 	{
-		cout << pqB.top().name << " : priority " << pqB.top().priority << " : submit_time : " << pqB.top().submit_time << endl;
+		auto top = pqB.top();
+		cout << top.name << " : priority " << top.priority << " : submit_time : " << top.submit_time << endl;
 		pqB.pop();
 	}
 
